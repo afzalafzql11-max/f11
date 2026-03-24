@@ -1,58 +1,79 @@
+/* GLOBAL */
 body{
   font-family:'Segoe UI',sans-serif;
+  margin:0;
+  padding-top:80px;
+  text-align:center;
+  color:white;
+
+  /* Animated Gradient */
   background: linear-gradient(-45deg,#6a11cb,#2575fc,#00c6ff,#7b2ff7);
   background-size:400% 400%;
   animation:gradientMove 12s ease infinite;
-  text-align:center;
-  margin:0;
-  padding-top:80px;
 }
 
+/* BACKGROUND ANIMATION */
 @keyframes gradientMove{
   0%{background-position:0% 50%;}
   50%{background-position:100% 50%;}
   100%{background-position:0% 50%;}
 }
 
+/* TITLE BAR */
 .title{
   position:fixed;
   top:0;
   width:100%;
-  padding:20px;
-  font-size:28px;
-  color:white;
-  background:rgba(0,0,0,0.3);
+  padding:18px;
+  font-size:26px;
+  background:rgba(0,0,0,0.4);
+  backdrop-filter: blur(8px);
+  z-index:1000;
 }
 
+/* MAIN CARD */
 .container{
   width:400px;
   margin:20px auto;
   padding:30px;
+
   background:rgba(255,255,255,0.15);
+  backdrop-filter: blur(10px);
+
   border-radius:20px;
+  box-shadow:0 8px 25px rgba(0,0,0,0.2);
 }
 
+/* INPUT */
 input{
   width:90%;
   padding:12px;
   margin:10px;
   border:none;
   border-radius:8px;
+  outline:none;
 }
 
+/* BUTTON (GREEN UI) */
 button{
   width:90%;
   padding:12px;
   margin:10px;
-  background:#2575fc;
+
+  background:#22c55e;
   color:white;
   border:none;
   border-radius:8px;
+
   cursor:pointer;
+  font-weight:bold;
 }
 
-.page{display:none;}
+button:hover{
+  background:#16a34a;
+}
 
+/* GRID */
 .childrenGrid{
   display:flex;
   flex-wrap:wrap;
@@ -60,66 +81,69 @@ button{
   justify-content:center;
 }
 
+/* CARD */
 .childCard{
   background:rgba(255,255,255,0.2);
   padding:10px;
   border-radius:10px;
   width:150px;
 }
-.popup{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.6);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
 
-.popup-content{
-  background:white;
-  padding:20px;
-  border-radius:12px;
-  width:300px;
-  text-align:center;
-}
+/* PAGE CONTROL */
+.page{display:none;}
 
-.hidden{
-  display:none;
-}
-/* MODAL BACKDROP */
+/* ================= MODAL (FIXED) ================= */
+
 .modal{
   position:fixed;
   top:0;
   left:0;
   width:100%;
   height:100%;
-  background:rgba(0,0,0,0.7);
+
   display:none;
   justify-content:center;
   align-items:center;
+
+  background:rgba(0,0,0,0.6);
+  z-index:2000;
 }
 
-/* MODAL BOX */
 .modal-box{
-  background:white;
+  background:#1e293b;
+  color:white;
+
   padding:25px;
-  border-radius:12px;
+  border-radius:14px;
   width:320px;
+
   text-align:center;
-  box-shadow:0 10px 30px rgba(0,0,0,0.3);
+
+  box-shadow:0 10px 30px rgba(0,0,0,0.5);
 }
 
-/* BUTTON */
 .modal-box button{
   margin-top:15px;
-  padding:10px;
   width:100%;
-  background:#2575fc;
-  color:white;
+  padding:10px;
+  background:#22c55e;
   border:none;
   border-radius:8px;
   cursor:pointer;
+  color:white;
+  font-weight:bold;
+}
+
+.modal-box button:hover{
+  background:#16a34a;
+}
+
+/* OPTIONAL: RED ERROR STYLE */
+.modal.error .modal-box{
+  border:2px solid red;
+}
+
+/* OPTIONAL: SUCCESS STYLE */
+.modal.success .modal-box{
+  border:2px solid #22c55e;
 }
