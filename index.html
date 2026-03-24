@@ -20,6 +20,7 @@
   <button onclick="showPage('dashboard'); toggleMenu()">🏠 Dashboard</button>
   <button onclick="showPage('crosscheck'); toggleMenu()">🔍 Cross Check</button>
   <button onclick="showPage('register'); toggleMenu()">📤 Upload Child</button>
+  <button onclick="logout(); toggleMenu()">🚪 Logout</button>
 </div>
 
 <!-- LOGIN -->
@@ -44,7 +45,6 @@
 <!-- DASHBOARD -->
 <div class="container page" id="dashboard">
   <h2>Dashboard</h2>
-
   <div id="childrenContainer" class="childrenGrid"></div>
 </div>
 
@@ -61,8 +61,14 @@
 <!-- CROSSCHECK -->
 <div class="container page" id="crosscheck">
   <h2>Cross Check</h2>
-  <input id="check_photo" type="file">
-  <button onclick="crossCheck()">Check Match</button>
+
+  <h4>Upload Image</h4>
+  <input id="check_photo" type="file" accept="image/*">
+  <button onclick="crossCheckImage()">Check Image</button>
+
+  <h4>Upload Video (NEW)</h4>
+  <input id="check_video" type="file" accept="video/*">
+  <button onclick="crossCheckVideo()">Check Video</button>
 </div>
 
 <!-- MODAL -->
