@@ -1,9 +1,9 @@
-const API = "https://b11-sj3k.onrender.com";
+const API = "https://b1-7uce.onrender.com";
 
 let userEmail = "";
 let isAdmin = false;
 
-/* PAGE SWITCH */
+/* ---------------- PAGE SWITCH ---------------- */
 function showPage(page){
   document.querySelectorAll(".page").forEach(p=>p.style.display="none");
   document.getElementById(page).style.display="block";
@@ -12,164 +12,144 @@ function showPage(page){
 }
 showPage("login");
 
-/* SIGNUP */
+/* ---------------- MODAL ---------------- */
+function showModal(title, message){
+  document.getElementById("modalTitle").innerText = title;
+  document.getElementById("modalText").innerText = message;
+  document.getElementById("resultModal").style.display = "flex";
+}
+
+function closeModal(){
+  document.getElementById("resultModal").style.display = "none";
+}
+
+/* ---------------- SIGNUP ---------------- */
 function signup(){
   fetch(API+"/signup",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({
-      name: document.getElementById("su_name").value,
-      email: document.getElementById("su_email").value,
-      password: document.getElementById("su_pass").value
+      name:su_name.value,
+      email:su_email.value,
+      password:su_pass.value
     })
   })
   .then(r=>r.json())
-  .then(d=>{
-    alert(d.message || "Signup Done");
-    showPage("login");
-  });
+  .then(()=>showPage("login"));
 }
 
-/* LOGIN */
+/* ---------------- LOGIN ---------------- */
 function login(){
   fetch(API+"/login",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({
-      email: document.getElementById("login_email").value,
-      password: document.getElementById("login_pass").value
+      email:login_email.value,
+      password:login_pass.value
     })
   })
   .then(r=>r.json())
   .then(d=>{
     if(d.status==="admin"){
-      isAdmin = true;
-      userEmail = "";
-      alert("Admin Login");
+      isAdmin=true;
       showPage("dashboard");
     }
     else if(d.status==="user"){
-      isAdmin = false;
-      userEmail = d.email;   // 🔥 auto email
-      alert("User Login");
+      userEmail=d.email;
       showPage("dashboard");
     }
-    else{
-      alert("Login Failed");
-    }
+    else alert("Login Failed");
   });
 }
 
-/* LOAD CHILDREN */
+/* ---------------- LOAD CHILDREN ---------------- */
 function loadChildren(){
   fetch(API+"/get_children")
   .then(r=>r.json())
   .then(data=>{
-    let container = document.getElementById("childrenContainer");
-    container.innerHTML="";
+    let c=document.getElementById("childrenContainer");
+    c.innerHTML="";
 
-    data.forEach(c=>{
-      let card=document.createElement("div");
-      card.className="childCard";
+    data.forEach(x=>{
+      let div=document.createElement("div");
+      div.className="childCard";
 
-      let delBtn = isAdmin
-        ? `<button onclick="deleteChild(${c.id})">Delete</button>`
-        : "";
-
-      card.innerHTML = `
-        <h4>${c.name}</h4>
-        <p>Age: ${c.age}</p>
-        <p>${c.place}</p>
-        ${delBtn}
+      div.innerHTML=`
+        <h4>${x.name}</h4>
+        <p>${x.age}</p>
+        <p>${x.place}</p>
+        ${isAdmin?`<button onclick="deleteChild(${x.id})">Delete</button>`:""}
       `;
 
-      container.appendChild(card);
+      c.appendChild(div);
     });
   });
 }
 
-/* DELETE */
+/* ---------------- DELETE ---------------- */
 function deleteChild(id){
-  if(!confirm("Delete child?")) return;
-
   fetch(API+"/delete_child/"+id,{method:"DELETE"})
-  .then(()=>{
-    alert("Deleted");
-    loadChildren();
-  });
+  .then(()=>loadChildren());
 }
 
-/* REGISTER CHILD */
+/* ---------------- REGISTER ---------------- */
 function registerChild(){
   let f=new FormData();
-  f.append("name", document.getElementById("child_name").value);
-  f.append("age", document.getElementById("child_age").value);
-  f.append("place", document.getElementById("child_place").value);
-  f.append("photo", document.getElementById("child_photo").files[0]);
+  f.append("name",child_name.value);
+  f.append("age",child_age.value);
+  f.append("place",child_place.value);
+  f.append("photo",child_photo.files[0]);
 
   fetch(API+"/register_child",{method:"POST",body:f})
-  .then(r=>r.json())
-  .then(d=>{
-    alert(d.message || "Registered");
-    showPage("dashboard");
-  });
+  .then(()=>showPage("dashboard"));
 }
 
-/* IMAGE CHECK */
+/* ---------------- CROSSCHECK ---------------- */
 function crossCheck(){
+
+  if(!check_photo.files[0]){
+    showModal("⚠️ ERROR","Upload image first");
+    return;
+  }
+
   let f=new FormData();
-  f.append("photo", document.getElementById("check_photo").files[0]);
-  f.append("user_email", userEmail);
+  f.append("photo",check_photo.files[0]);
 
   fetch(API+"/crosscheck",{method:"POST",body:f})
   .then(r=>r.json())
   .then(d=>{
-    showPage("result");
-
-    let resultText = document.getElementById("result_text");
-    let details = document.getElementById("family_details");
 
     if(d.status==="found"){
 
-      alert("MATCH FOUND ✅");
+      if(d.type==="reverse_age"){
+        showModal("🔄 REVERSE AGE MATCH FOUND",
+          `Name: ${d.name}\nAge: ${d.age}\nPlace: ${d.place}`);
+      } else {
+        showModal("✅ MATCH FOUND",
+          `Name: ${d.name}\nAge: ${d.age}\nPlace: ${d.place}`);
+      }
 
-      resultText.innerHTML =
-        d.match_type==="age_progression"
-        ? "AGE PROGRESSION MATCH FOUND"
-        : "MATCH FOUND";
+    }
 
-      details.innerHTML =
-        `Name: ${d.name}<br>Age: ${d.age}<br>Place: ${d.place}`;
+    else if(d.status==="not found"){
+      showModal("❌ NOT FOUND","No match found.");
     }
 
     else if(d.status==="no face"){
-      alert("NO FACE DETECTED ❌");
-      resultText.innerHTML="NO FACE DETECTED";
-      details.innerHTML="";
+      showModal("⚠️ ERROR","No face detected.");
+    }
+
+    else if(d.status==="no data"){
+      showModal("⚠️ ERROR","No children in database.");
     }
 
     else{
-      alert("NOT FOUND ❌");
-      resultText.innerHTML="NOT FOUND";
-      details.innerHTML="";
+      showModal("❌ ERROR","Something went wrong.");
     }
-  });
-}
 
-/* VIDEO DETECTION */
-function detectVideo(){
-  let f=new FormData();
-  f.append("video", document.getElementById("video_file").files[0]);
-
-  fetch(API+"/detect_video",{method:"POST",body:f})
-  .then(r=>r.json())
-  .then(d=>{
-    if(d.status==="found"){
-      alert("MATCH FOUND IN VIDEO 🎯");
-      console.log(d.results);
-    } 
-    else{
-      alert("NO MATCH FOUND ❌");
-    }
+  })
+  .catch(()=>{
+    showModal("❌ ERROR","Server error");
   });
+
 }
