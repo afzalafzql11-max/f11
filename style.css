@@ -1,13 +1,125 @@
 body{
-  font-family:Arial;
+  font-family:'Segoe UI',sans-serif;
+  background: linear-gradient(-45deg,#6a11cb,#2575fc,#00c6ff,#7b2ff7);
+  background-size:400% 400%;
+  animation:gradientMove 12s ease infinite;
   text-align:center;
-  background:#111;
-  color:white;
+  margin:0;
+  padding-top:80px;
 }
 
-input,button{
+@keyframes gradientMove{
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+
+.title{
+  position:fixed;
+  top:0;
+  width:100%;
+  padding:20px;
+  font-size:28px;
+  color:white;
+  background:rgba(0,0,0,0.3);
+}
+
+.container{
+  width:400px;
+  margin:20px auto;
+  padding:30px;
+  background:rgba(255,255,255,0.15);
+  border-radius:20px;
+}
+
+input{
+  width:90%;
+  padding:12px;
   margin:10px;
-  padding:10px;
+  border:none;
+  border-radius:8px;
+}
+
+button{
+  width:90%;
+  padding:12px;
+  margin:10px;
+  background:#2575fc;
+  color:white;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
 }
 
 .page{display:none;}
+
+.childrenGrid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  justify-content:center;
+}
+
+.childCard{
+  background:rgba(255,255,255,0.2);
+  padding:10px;
+  border-radius:10px;
+  width:150px;
+}
+.popup{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.popup-content{
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  width:300px;
+  text-align:center;
+}
+
+.hidden{
+  display:none;
+}
+/* MODAL BACKDROP */
+.modal{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.7);
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+
+/* MODAL BOX */
+.modal-box{
+  background:white;
+  padding:25px;
+  border-radius:12px;
+  width:320px;
+  text-align:center;
+  box-shadow:0 10px 30px rgba(0,0,0,0.3);
+}
+
+/* BUTTON */
+.modal-box button{
+  margin-top:15px;
+  padding:10px;
+  width:100%;
+  background:#2575fc;
+  color:white;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
