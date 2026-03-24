@@ -6,27 +6,29 @@ let userEmail = "";
 
 /* ---------------- PAGE CONTROL ---------------- */
 function showPage(page){
-if(data.status==="admin"){
-    isLoggedIn = true;
-    isAdmin = true;
-    userEmail = data.email;
-    showPage("adminDashboard"); // <-- show admin panel
-} else if(data.status==="user"){
-    isLoggedIn = true;
-    isAdmin = false;
-    userEmail = data.email;
-    showPage("dashboard");
-} else {
-    alert("Login Failed");
-}
+
+    document.querySelectorAll(".page").forEach(p=>{
+        p.style.display = "none";
+    });
+
+    document.getElementById(page).style.display = "block";
+
+    // Load children when dashboard opens
+    if(page === "dashboard"){
+        loadChildren();
+    }
 }
 
-showPage("login");
+/* ---------------- INIT ---------------- */
+document.addEventListener("DOMContentLoaded", ()=>{
+    showPage("login");
+});
 
 /* ---------------- LOGOUT ---------------- */
 function logout(){
-    isLoggedIn=false;
-    isAdmin=false;
+    isLoggedIn = false;
+    isAdmin = false;
+    userEmail = "";
     showPage("login");
 }
 
@@ -35,21 +37,25 @@ function signup(){
 
     console.log("SIGNUP CLICKED");
 
-    fetch(API+"/signup",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({
-            name:document.getElementById("su_name").value,
-            email:document.getElementById("su_email").value,
-            password:document.getElementById("su_pass").value
+    fetch(API + "/signup", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            name: document.getElementById("su_name").value,
+            email: document.getElementById("su_email").value,
+            password: document.getElementById("su_pass").value
         })
     })
     .then(async r=>{
         let data = await r.json();
         console.log("SIGNUP RESPONSE:", data);
 
-        alert("Signup successful!");
-        showPage("login");
+        if(r.ok){
+            alert("Signup successful!");
+            showPage("login");
+        } else {
+            alert(data.message || "Signup failed");
+        }
     })
     .catch(err=>{
         console.log("SIGNUP ERROR:", err);
@@ -62,25 +68,33 @@ function login(){
 
     console.log("LOGIN CLICKED");
 
-    fetch(API+"/login",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({
-            email:document.getElementById("login_email").value,
-            password:document.getElementById("login_pass").value
+    fetch(API + "/login", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            email: document.getElementById("login_email").value,
+            password: document.getElementById("login_pass").value
         })
     })
     .then(async r=>{
         let data = await r.json();
         console.log("LOGIN RESPONSE:", data);
 
-        if(data.status==="admin" || data.status==="user"){
-            isLoggedIn=true;
-            isAdmin=(data.status==="admin");
-            userEmail=data.email;
+        if(data.status === "admin"){
+            isLoggedIn = true;
+            isAdmin = true;
+            userEmail = data.email;
+
+            showPage("adminDashboard");
+        }
+        else if(data.status === "user"){
+            isLoggedIn = true;
+            isAdmin = false;
+            userEmail = data.email;
 
             showPage("dashboard");
-        } else {
+        }
+        else {
             alert("Login Failed");
         }
     })
@@ -93,21 +107,26 @@ function login(){
 /* ---------------- LOAD CHILDREN ---------------- */
 function loadChildren(){
 
-    fetch(API+"/get_children")
+    fetch(API + "/get_children")
     .then(r=>r.json())
     .then(data=>{
         console.log("CHILDREN:", data);
 
-        let c=document.getElementById("childrenContainer");
-        c.innerHTML="";
+        let c = document.getElementById("childrenContainer");
+        c.innerHTML = "";
 
         data.forEach(x=>{
-            let div=document.createElement("div");
+            let div = document.createElement("div");
+            div.style.border = "1px solid #ccc";
+            div.style.margin = "10px";
+            div.style.padding = "10px";
+
             div.innerHTML = `
                 <h4>${x.name}</h4>
-                <p>${x.age}</p>
-                <p>${x.place}</p>
+                <p>Age: ${x.age}</p>
+                <p>Place: ${x.place}</p>
             `;
+
             c.appendChild(div);
         });
     })
@@ -116,20 +135,23 @@ function loadChildren(){
     });
 }
 
-/* ---------------- REGISTER ---------------- */
+/* ---------------- REGISTER CHILD ---------------- */
 function registerChild(){
 
-    let f=new FormData();
-    f.append("name",document.getElementById("child_name").value);
-    f.append("age",document.getElementById("child_age").value);
-    f.append("place",document.getElementById("child_place").value);
-    f.append("photo",document.getElementById("child_photo").files[0]);
+    let f = new FormData();
+    f.append("name", document.getElementById("child_name").value);
+    f.append("age", document.getElementById("child_age").value);
+    f.append("place", document.getElementById("child_place").value);
+    f.append("photo", document.getElementById("child_photo").files[0]);
 
-    fetch(API+"/register_child",{method:"POST",body:f})
+    fetch(API + "/register_child", {
+        method: "POST",
+        body: f
+    })
     .then(r=>r.json())
     .then(data=>{
         console.log("REGISTER:", data);
-        alert("Child uploaded");
+        alert("Child uploaded successfully");
         showPage("dashboard");
     })
     .catch(err=>{
@@ -141,17 +163,20 @@ function registerChild(){
 /* ---------------- IMAGE CHECK ---------------- */
 function crossCheckImage(){
 
-    let file=document.getElementById("check_photo").files[0];
+    let file = document.getElementById("check_photo").files[0];
 
     if(!file){
         alert("Upload image");
         return;
     }
 
-    let f=new FormData();
-    f.append("photo",file);
+    let f = new FormData();
+    f.append("photo", file);
 
-    fetch(API+"/crosscheck",{method:"POST",body:f})
+    fetch(API + "/crosscheck", {
+        method: "POST",
+        body: f
+    })
     .then(r=>r.json())
     .then(data=>{
         console.log("IMAGE CHECK:", data);
@@ -159,23 +184,27 @@ function crossCheckImage(){
     })
     .catch(err=>{
         console.log("IMAGE ERROR:", err);
+        alert("Image check failed");
     });
 }
 
 /* ---------------- VIDEO CHECK ---------------- */
 function crossCheckVideo(){
 
-    let file=document.getElementById("check_video").files[0];
+    let file = document.getElementById("check_video").files[0];
 
     if(!file){
         alert("Upload video");
         return;
     }
 
-    let f=new FormData();
-    f.append("video",file);
+    let f = new FormData();
+    f.append("video", file);
 
-    fetch(API+"/crosscheck_video",{method:"POST",body:f})
+    fetch(API + "/crosscheck_video", {
+        method: "POST",
+        body: f
+    })
     .then(r=>r.json())
     .then(data=>{
         console.log("VIDEO CHECK:", data);
@@ -189,10 +218,18 @@ function crossCheckVideo(){
 
 /* ---------------- MENU ---------------- */
 function toggleMenu(){
-    let menu=document.getElementById("sideMenu");
-    menu.style.left = (menu.style.left==="0px") ? "-250px" : "0px";
+    let menu = document.getElementById("sideMenu");
+
+    if(menu.style.left === "0px"){
+        menu.style.left = "-250px";
+    } else {
+        menu.style.left = "0px";
+    }
 }
+
+/* ---------------- DELETE CHILD (ADMIN) ---------------- */
 function deleteChild() {
+
     const id = document.getElementById("deleteId").value;
 
     if(!id){
