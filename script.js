@@ -1,180 +1,141 @@
-const API = "https://b11-frrj.onrender.com";
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import os, sqlite3, cv2, numpy as np
 
-let userEmail = "";
-let isAdmin = false;
-let isLoggedIn = false;
+app = Flask(__name__)
+CORS(app)
 
-/* ---------------- PAGE CONTROL ---------------- */
-function showPage(page){
-    if(!isLoggedIn && page !== "login" && page !== "signup"){
-        page = "login";
-    }
+UPLOAD_FOLDER = "uploads"
+DATASET = "dataset"
+DB = "database.db"
 
-    document.querySelectorAll(".page").forEach(p=>p.style.display="none");
-    document.getElementById(page).style.display="block";
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(DATASET, exist_ok=True)
 
-    if(page==="dashboard" && isLoggedIn) loadChildren();
-}
+face_cascade = cv2.CascadeClassifier(
+    cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+)
 
-showPage("login");
+# ---------------- DATABASE ----------------
+def init_db():
+    conn = sqlite3.connect(DB)
+    cur = conn.cursor()
+    cur.execute("""CREATE TABLE IF NOT EXISTS children(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        age INTEGER,
+        place TEXT,
+        image_path TEXT)""")
+    conn.commit()
+    conn.close()
 
-/* ---------------- MODAL ---------------- */
-function showModal(title, message){
-    document.getElementById("modalTitle").innerText = title;
-    document.getElementById("modalText").innerText = message;
-    document.getElementById("resultModal").style.display = "flex";
-}
+init_db()
 
-function closeModal(){
-    document.getElementById("resultModal").style.display = "none";
-}
+# ---------------- FACE EXTRACTION ----------------
+def extract_face(img):
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+    if len(faces)==0:
+        return None
+    x,y,w,h = faces[0]
+    face = gray[y:y+h, x:x+w]
+    return cv2.resize(face, (200,200))
 
-/* ---------------- SIGNUP ---------------- */
-function signup(){
-    fetch(API+"/signup",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({
-            name:su_name.value,
-            email:su_email.value,
-            password:su_pass.value
+# ---------------- REVERSE AGE ----------------
+def reverse_age(face):
+    smooth = cv2.bilateralFilter(face, 9, 75, 75)
+    bright = cv2.convertScaleAbs(smooth, alpha=1.2, beta=10)
+    return cv2.equalizeHist(bright)
+
+# ---------------- TRAIN MODEL ----------------
+def train_model():
+    try:
+        recognizer = cv2.face.LBPHFaceRecognizer_create()
+    except:
+        return None
+
+    faces, labels = [], []
+    conn = sqlite3.connect(DB)
+    cur = conn.cursor()
+    cur.execute("SELECT id, image_path FROM children")
+    rows = cur.fetchall()
+    conn.close()
+
+    for r in rows:
+        img = cv2.imread(r[1],0)
+        if img is None:
+            continue
+        faces.append(img)
+        labels.append(r[0])
+        faces.append(reverse_age(img))
+        labels.append(r[0])
+
+    if len(faces)==0:
+        return None
+
+    recognizer.train(faces, np.array(labels))
+    return recognizer
+
+# ---------------- VIDEO CROSSCHECK ----------------
+@app.route("/crosscheck_video", methods=["POST"])
+def crosscheck_video():
+    if "video" not in request.files:
+        return jsonify({"status":"no file"})
+
+    video = request.files["video"]
+    path = os.path.join(UPLOAD_FOLDER, video.filename)
+    video.save(path)
+
+    cap = cv2.VideoCapture(path)
+    model = train_model()
+    if model is None:
+        return jsonify({"status":"no data"})
+
+    frame_count = 0
+    found = None
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        frame_count += 1
+        # process every 5th frame to speed up
+        if frame_count % 5 != 0:
+            continue
+
+        face = extract_face(frame)
+        if face is None:
+            continue
+
+        # NORMAL check
+        label, conf = model.predict(face)
+        if conf < 65:
+            found = {"status":"found","type":"normal","label":label,"confidence":conf}
+            break
+
+        # REVERSE AGE check
+        rev_face = reverse_age(face)
+        label, conf = model.predict(rev_face)
+        if conf < 65:
+            found = {"status":"found","type":"reverse_age","label":label,"confidence":conf}
+            break
+
+    cap.release()
+    os.remove(path)  # clean up
+
+    if found:
+        conn = sqlite3.connect(DB)
+        cur = conn.cursor()
+        cur.execute("SELECT name, age, place FROM children WHERE id=?",(found["label"],))
+        row = cur.fetchone()
+        conn.close()
+        return jsonify({
+            "status":"found",
+            "type":found["type"],
+            "name":row[0],
+            "age":row[1],
+            "place":row[2],
+            "confidence":float(found["confidence"])
         })
-    })
-    .then(r=>r.json())
-    .then(()=>showPage("login"));
-}
-
-/* ---------------- LOGIN ---------------- */
-function login(){
-    fetch(API+"/login",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({
-            email:login_email.value,
-            password:login_pass.value
-        })
-    })
-    .then(r=>r.json())
-    .then(d=>{
-        if(d.status==="admin"){
-            isAdmin=true;
-            isLoggedIn=true;
-            showPage("dashboard");
-        }
-        else if(d.status==="user"){
-            userEmail=d.email;
-            isLoggedIn=true;
-            showPage("dashboard");
-        }
-        else{
-            alert("Login Failed");
-        }
-    });
-}
-
-/* ---------------- LOGOUT ---------------- */
-function logout(){
-    isLoggedIn=false;
-    isAdmin=false;
-    userEmail="";
-    showPage("login");
-}
-
-/* ---------------- LOAD CHILDREN ---------------- */
-function loadChildren(){
-    fetch(API+"/get_children")
-    .then(r=>r.json())
-    .then(data=>{
-        let c=document.getElementById("childrenContainer");
-        c.innerHTML="";
-
-        data.forEach(x=>{
-            let div=document.createElement("div");
-            div.className="childCard";
-
-            div.innerHTML=`
-                <h4>${x.name}</h4>
-                <p>${x.age}</p>
-                <p>${x.place}</p>
-                ${isAdmin?`<button onclick="deleteChild(${x.id})">Delete</button>`:""}
-            `;
-
-            c.appendChild(div);
-        });
-    });
-}
-
-/* ---------------- DELETE ---------------- */
-function deleteChild(id){
-    fetch(API+"/delete_child/"+id,{method:"DELETE"})
-    .then(()=>loadChildren());
-}
-
-/* ---------------- REGISTER ---------------- */
-function registerChild(){
-    let f=new FormData();
-    f.append("name",child_name.value);
-    f.append("age",child_age.value);
-    f.append("place",child_place.value);
-    f.append("photo",child_photo.files[0]);
-
-    fetch(API+"/register_child",{method:"POST",body:f})
-    .then(()=>showPage("dashboard"));
-}
-
-/* ---------------- IMAGE CROSSCHECK ---------------- */
-function crossCheckImage(){
-    if(!check_photo.files[0]){
-        showModal("⚠️ ERROR","Upload image first");
-        return;
-    }
-
-    let f=new FormData();
-    f.append("photo",check_photo.files[0]);
-
-    fetch(API+"/crosscheck",{method:"POST",body:f})
-    .then(r=>r.json())
-    .then(d=>handleResult(d));
-}
-
-/* ---------------- VIDEO CROSSCHECK (NEW UI ONLY) ---------------- */
-function crossCheckVideo(){
-    if(!check_video.files[0]){
-        showModal("⚠️ ERROR","Upload video first");
-        return;
-    }
-
-    let f=new FormData();
-    f.append("video",check_video.files[0]);
-
-    fetch(API+"/crosscheck_video",{method:"POST",body:f})
-    .then(r=>r.json())
-    .then(d=>handleResult(d));
-}
-
-/* ---------------- HANDLE RESULT ---------------- */
-function handleResult(d){
-
-    if(d.status==="found"){
-        showModal("✅ MATCH FOUND",
-            `Name: ${d.name}\nAge: ${d.age}\nPlace: ${d.place}`);
-    }
-    else if(d.status==="not found"){
-        showModal("❌ NOT FOUND","No match found.");
-    }
-    else if(d.status==="no face"){
-        showModal("⚠️ ERROR","No face detected.");
-    }
-    else if(d.status==="no data"){
-        showModal("⚠️ ERROR","No children in database.");
-    }
-    else{
-        showModal("❌ ERROR","Something went wrong.");
-    }
-}
-
-/* ---------------- MENU ---------------- */
-function toggleMenu(){
-    let menu=document.getElementById("sideMenu");
-    menu.style.left = (menu.style.left==="0px") ? "-250px" : "0px";
-}
+    else:
+        return jsonify({"status":"not found"})
