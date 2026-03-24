@@ -1,57 +1,125 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Missing Child System</title>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
+body{
+  font-family:'Segoe UI',sans-serif;
+  background: linear-gradient(-45deg,#6a11cb,#2575fc,#00c6ff,#7b2ff7);
+  background-size:400% 400%;
+  animation:gradientMove 12s ease infinite;
+  text-align:center;
+  margin:0;
+  padding-top:80px;
+}
 
-<h1 class="title">Missing Child Detection</h1>
+@keyframes gradientMove{
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
 
-<div id="login" class="page">
-  <input id="login_email" placeholder="Email">
-  <input id="login_pass" type="password" placeholder="Password">
-  <button onclick="login()">Login</button>
-  <button onclick="showPage('signup')">Signup</button>
-</div>
+.title{
+  position:fixed;
+  top:0;
+  width:100%;
+  padding:20px;
+  font-size:28px;
+  color:white;
+  background:rgba(0,0,0,0.3);
+}
 
-<div id="signup" class="page">
-  <input id="su_name" placeholder="Name">
-  <input id="su_email" placeholder="Email">
-  <input id="su_pass" placeholder="Password">
-  <button onclick="signup()">Signup</button>
-</div>
+.container{
+  width:400px;
+  margin:20px auto;
+  padding:30px;
+  background:rgba(255,255,255,0.15);
+  border-radius:20px;
+}
 
-<div id="dashboard" class="page">
-  <button onclick="showPage('register')">Register Child</button>
-  <button onclick="showPage('crosscheck')">Check Image</button>
-  <button onclick="showPage('video')">Check Video</button>
-  <div id="childrenContainer"></div>
-</div>
+input{
+  width:90%;
+  padding:12px;
+  margin:10px;
+  border:none;
+  border-radius:8px;
+}
 
-<div id="register" class="page">
-  <input id="child_name" placeholder="Name">
-  <input id="child_age" placeholder="Age">
-  <input id="child_place" placeholder="Place">
-  <input type="file" id="child_photo">
-  <button onclick="registerChild()">Submit</button>
-</div>
+button{
+  width:90%;
+  padding:12px;
+  margin:10px;
+  background:#2575fc;
+  color:white;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
 
-<div id="crosscheck" class="page">
-  <input type="file" id="check_photo">
-  <button onclick="crossCheck()">Check</button>
-</div>
+.page{display:none;}
 
-<div id="video" class="page">
-  <input type="file" id="video_file">
-  <button onclick="detectVideo()">Detect</button>
-</div>
+.childrenGrid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  justify-content:center;
+}
 
-<div id="result" class="page">
-  <h2 id="result_text"></h2>
-  <div id="family_details"></div>
-</div>
+.childCard{
+  background:rgba(255,255,255,0.2);
+  padding:10px;
+  border-radius:10px;
+  width:150px;
+}
+.popup{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
 
-<script src="script.js"></script>
-</body>
-</html>
+.popup-content{
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  width:300px;
+  text-align:center;
+}
+
+.hidden{
+  display:none;
+}
+/* MODAL BACKDROP */
+.modal{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.7);
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+
+/* MODAL BOX */
+.modal-box{
+  background:white;
+  padding:25px;
+  border-radius:12px;
+  width:320px;
+  text-align:center;
+  box-shadow:0 10px 30px rgba(0,0,0,0.3);
+}
+
+/* BUTTON */
+.modal-box button{
+  margin-top:15px;
+  padding:10px;
+  width:100%;
+  background:#2575fc;
+  color:white;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
