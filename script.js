@@ -153,3 +153,18 @@ function crossCheck(){
   });
 
 }
+function toggleMenu(){
+  let menu = document.getElementById("sideMenu");
+
+  if(menu.style.left === "0px"){
+    menu.style.left = "-250px";
+  } else {
+    menu.style.left = "0px";
+  }
+}
+
+function showPage(page){
+  document.querySelectorAll(".page").forEach(p=>p.style.display="none");
+  document.getElementById(page).style.display="block";
+}
+showPage("login");
