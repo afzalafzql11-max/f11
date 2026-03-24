@@ -193,3 +193,28 @@ function toggleMenu(){
     let menu=document.getElementById("sideMenu");
     menu.style.left = (menu.style.left==="0px") ? "-250px" : "0px";
 }
+function deleteChild() {
+    const id = document.getElementById("deleteId").value;
+
+    if(!id){
+        alert("Enter a child ID");
+        return;
+    }
+
+    fetch(`${API}/admin/delete_child/${id}`, {
+        method: "DELETE",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            email: "admin@example.com",
+            password: "ths345$"
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message || data.status);
+    })
+    .catch(err => {
+        console.log("DELETE ERROR:", err);
+        alert("Delete failed");
+    });
+}
