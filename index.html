@@ -9,13 +9,11 @@
 
 <body>
 
-<!-- TOP BAR -->
 <div class="topbar">
   <div class="menu-btn" onclick="toggleMenu()">☰</div>
   <h2>Missing Link System</h2>
 </div>
 
-<!-- SIDE MENU -->
 <div id="sideMenu" class="side-menu">
   <button onclick="showPage('dashboard'); toggleMenu()">🏠 Dashboard</button>
   <button onclick="showPage('crosscheck'); toggleMenu()">🔍 Cross Check</button>
@@ -34,18 +32,18 @@
 
 <!-- SIGNUP -->
 <div class="container page" id="signup">
-  <h2>Create Account</h2>
+  <h2>Signup</h2>
   <input id="su_name" placeholder="Name">
   <input id="su_email" placeholder="Email">
   <input id="su_pass" type="password" placeholder="Password">
-  <button onclick="signup()">Create</button>
+  <button onclick="signup()">Signup</button>
   <button onclick="showPage('login')">Back</button>
 </div>
 
 <!-- DASHBOARD -->
 <div class="container page" id="dashboard">
   <h2>Dashboard</h2>
-  <div id="childrenContainer" class="childrenGrid"></div>
+  <div id="childrenContainer"></div>
 </div>
 
 <!-- REGISTER -->
@@ -62,22 +60,13 @@
 <div class="container page" id="crosscheck">
   <h2>Cross Check</h2>
 
-  <h4>Upload Image</h4>
+  <h4>Image</h4>
   <input id="check_photo" type="file" accept="image/*">
   <button onclick="crossCheckImage()">Check Image</button>
 
-  <h4>Upload Video (NEW)</h4>
+  <h4>Video</h4>
   <input id="check_video" type="file" accept="video/*">
   <button onclick="crossCheckVideo()">Check Video</button>
-</div>
-
-<!-- MODAL -->
-<div id="resultModal" class="modal">
-  <div class="modal-box">
-    <h2 id="modalTitle"></h2>
-    <p id="modalText"></p>
-    <button onclick="closeModal()">OK</button>
-  </div>
 </div>
 
 <script src="script.js"></script>
