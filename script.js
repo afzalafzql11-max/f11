@@ -163,5 +163,9 @@ function toggleMenu(){
   }
 }
 
+// REMOVE duplicate showPage()
+function showPage(page){
+  document.querySelectorAll(".page").forEach(p=>p.style.display="none");
+  document.getElementById(page).style.display="block";
+}
 
-showPage("login");
