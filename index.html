@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Missing Child System</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1 class="title">Missing Child Detection</h1>
+
+<div id="login" class="page">
+  <input id="login_email" placeholder="Email">
+  <input id="login_pass" type="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+  <button onclick="showPage('signup')">Signup</button>
+</div>
+
+<div id="signup" class="page">
+  <input id="su_name" placeholder="Name">
+  <input id="su_email" placeholder="Email">
+  <input id="su_pass" placeholder="Password">
+  <button onclick="signup()">Signup</button>
+</div>
+
+<div id="dashboard" class="page">
+  <button onclick="showPage('register')">Register Child</button>
+  <button onclick="showPage('crosscheck')">Check Image</button>
+  <button onclick="showPage('video')">Check Video</button>
+  <div id="childrenContainer"></div>
+</div>
+
+<div id="register" class="page">
+  <input id="child_name" placeholder="Name">
+  <input id="child_age" placeholder="Age">
+  <input id="child_place" placeholder="Place">
+  <input type="file" id="child_photo">
+  <button onclick="registerChild()">Submit</button>
+</div>
+
+<div id="crosscheck" class="page">
+  <input type="file" id="check_photo">
+  <button onclick="crossCheck()">Check</button>
+</div>
+
+<div id="video" class="page">
+  <input type="file" id="video_file">
+  <button onclick="detectVideo()">Detect</button>
+</div>
+
+<div id="result" class="page">
+  <h2 id="result_text"></h2>
+  <div id="family_details"></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
