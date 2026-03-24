@@ -6,20 +6,19 @@ let userEmail = "";
 
 /* ---------------- PAGE CONTROL ---------------- */
 function showPage(page){
-
-    if(!isLoggedIn && page !== "login" && page !== "signup"){
-        page = "login";
-    }
-
-    document.querySelectorAll(".page").forEach(p=>{
-        p.style.display="none";
-    });
-
-    document.getElementById(page).style.display="block";
-
-    if(page==="dashboard" && isLoggedIn){
-        loadChildren();
-    }
+if(data.status==="admin"){
+    isLoggedIn = true;
+    isAdmin = true;
+    userEmail = data.email;
+    showPage("adminDashboard"); // <-- show admin panel
+} else if(data.status==="user"){
+    isLoggedIn = true;
+    isAdmin = false;
+    userEmail = data.email;
+    showPage("dashboard");
+} else {
+    alert("Login Failed");
+}
 }
 
 showPage("login");
