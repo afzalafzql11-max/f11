@@ -1,125 +1,79 @@
-body{
-  font-family:'Segoe UI',sans-serif;
-  background: linear-gradient(-45deg,#6a11cb,#2575fc,#00c6ff,#7b2ff7);
-  background-size:400% 400%;
-  animation:gradientMove 12s ease infinite;
-  text-align:center;
-  margin:0;
-  padding-top:80px;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Missing Link System</title>
+<link rel="stylesheet" href="style.css">
+</head>
 
-@keyframes gradientMove{
-  0%{background-position:0% 50%;}
-  50%{background-position:100% 50%;}
-  100%{background-position:0% 50%;}
-}
+<body>
 
-.title{
-  position:fixed;
-  top:0;
-  width:100%;
-  padding:20px;
-  font-size:28px;
-  color:white;
-  background:rgba(0,0,0,0.3);
-}
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="menu-btn" onclick="toggleMenu()">☰</div>
+  <h2>Missing Link System</h2>
+</div>
 
-.container{
-  width:400px;
-  margin:20px auto;
-  padding:30px;
-  background:rgba(255,255,255,0.15);
-  border-radius:20px;
-}
+<!-- SIDE MENU -->
+<div id="sideMenu" class="side-menu">
+  <button onclick="showPage('dashboard'); toggleMenu()">🏠 Dashboard</button>
+  <button onclick="showPage('crosscheck'); toggleMenu()">🔍 Cross Check</button>
+  <button onclick="showPage('register'); toggleMenu()">📤 Upload Child</button>
+</div>
 
-input{
-  width:90%;
-  padding:12px;
-  margin:10px;
-  border:none;
-  border-radius:8px;
-}
+<!-- LOGIN -->
+<div class="container page" id="login">
+  <h2>Login</h2>
+  <input id="login_email" placeholder="Email">
+  <input id="login_pass" type="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+  <button onclick="showPage('signup')">Create Account</button>
+</div>
 
-button{
-  width:90%;
-  padding:12px;
-  margin:10px;
-  background:#2575fc;
-  color:white;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-}
+<!-- SIGNUP -->
+<div class="container page" id="signup">
+  <h2>Create Account</h2>
+  <input id="su_name" placeholder="Name">
+  <input id="su_email" placeholder="Email">
+  <input id="su_pass" type="password" placeholder="Password">
+  <button onclick="signup()">Create</button>
+  <button onclick="showPage('login')">Back</button>
+</div>
 
-.page{display:none;}
+<!-- DASHBOARD -->
+<div class="container page" id="dashboard">
+  <h2>Dashboard</h2>
 
-.childrenGrid{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  justify-content:center;
-}
+  <div id="childrenContainer" class="childrenGrid"></div>
+</div>
 
-.childCard{
-  background:rgba(255,255,255,0.2);
-  padding:10px;
-  border-radius:10px;
-  width:150px;
-}
-.popup{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.6);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
+<!-- REGISTER -->
+<div class="container page" id="register">
+  <h2>Upload Child</h2>
+  <input id="child_name" placeholder="Name">
+  <input id="child_age" type="number" placeholder="Age">
+  <input id="child_place" placeholder="Place">
+  <input id="child_photo" type="file">
+  <button onclick="registerChild()">Upload</button>
+</div>
 
-.popup-content{
-  background:white;
-  padding:20px;
-  border-radius:12px;
-  width:300px;
-  text-align:center;
-}
+<!-- CROSSCHECK -->
+<div class="container page" id="crosscheck">
+  <h2>Cross Check</h2>
+  <input id="check_photo" type="file">
+  <button onclick="crossCheck()">Check Match</button>
+</div>
 
-.hidden{
-  display:none;
-}
-/* MODAL BACKDROP */
-.modal{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.7);
-  display:none;
-  justify-content:center;
-  align-items:center;
-}
+<!-- MODAL -->
+<div id="resultModal" class="modal">
+  <div class="modal-box">
+    <h2 id="modalTitle"></h2>
+    <p id="modalText"></p>
+    <button onclick="closeModal()">OK</button>
+  </div>
+</div>
 
-/* MODAL BOX */
-.modal-box{
-  background:white;
-  padding:25px;
-  border-radius:12px;
-  width:320px;
-  text-align:center;
-  box-shadow:0 10px 30px rgba(0,0,0,0.3);
-}
-
-/* BUTTON */
-.modal-box button{
-  margin-top:15px;
-  padding:10px;
-  width:100%;
-  background:#2575fc;
-  color:white;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-}
+<script src="script.js"></script>
+</body>
+</html>
